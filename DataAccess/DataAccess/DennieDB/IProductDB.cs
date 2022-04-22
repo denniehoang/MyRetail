@@ -1,6 +1,4 @@
-﻿using static DataAccess.Models.ResponseModels.DbResponseModels.DbProductResponseModel;
-
-namespace DataAccess.DataAccess.DennieDB;
+﻿namespace DataAccess.DataAccess.DennieDB;
 
 public interface IProductDB
 {

@@ -2,14 +2,12 @@
 
 public class ProductDbAccess : IProductDB
 {
-    private IConfiguration _config;
     private MongoClient _client;
     private IMongoDatabase _database;
     private IMongoCollection<DbProductResponseModel> _collection;
 
     public ProductDbAccess(IConfiguration config)
     {
-        _config = config;
         _client = new MongoClient(config["dennieDB:connectionString"]);
         _database = _client.GetDatabase(config["dennieDB:databaseName"]);
         _collection = _database.GetCollection<DbProductResponseModel>(config["dennieDB:collectionName"]);

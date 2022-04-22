@@ -1,5 +1,3 @@
-using DataAccess.Models.ResponseModels.DbResponseModels;
-
 namespace MyRetailApi.Controllers;
 
 [ApiController]
@@ -22,7 +20,6 @@ public class MyRetailController : ControllerBase
 
         var price = Convert.ToDecimal(dbObj.Price);
         var currencyCode = dbObj.Currency;
-            //(CurrencyCode)Enum.Parse(typeof(CurrencyCode), dbObj.Currency);
 
         var product = new Product()
         {
