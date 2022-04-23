@@ -2,10 +2,10 @@
 
 public class TargetDataAccess : ITargetDataAccess
 {
-    public IConfiguration _config;
-    public HttpClient _client;
-    public string _uri;
-    public string _key;
+    private IConfiguration _config;
+    private HttpClient _client;
+    private string _uri;
+    private string _key;
 
     public TargetDataAccess(IConfiguration config)
     {
@@ -21,6 +21,12 @@ public class TargetDataAccess : ITargetDataAccess
         var response = await _client.GetAsync(productRequest.Request.ToString());
         var result = response.Content.ReadAsStringAsync().Result;
         var product = JsonSerializer.Deserialize<TargetProductResponseModel>(result);
+        if (product.data is null)
+        {
+            var errorObj = JsonSerializer.Deserialize<RootError>(result);
+            throw new Exception(String.Format("{0}", errorObj.errors.First().message));
+        }
+
         return product;
     }
 }

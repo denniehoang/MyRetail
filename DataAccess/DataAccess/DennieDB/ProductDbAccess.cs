@@ -16,7 +16,9 @@ public class ProductDbAccess : IProductDB
     public async Task<DbProductResponseModel> GetProductPriceById(int id)
     {
         var result = await _collection.FindAsync(x => x.Id.Equals(id.ToString()));
-        return result.FirstOrDefault();
+        var product = result.FirstOrDefault();
+        if (product is null) throw new Exception(String.Format("ID {0} not found in DB.", id));
+        return product;
     }
 
     public async Task Insert(string id, decimal price, CurrencyCode currency)
@@ -27,6 +29,6 @@ public class ProductDbAccess : IProductDB
     public async Task UpdateProduct(DbProductResponseModel product)
     {
         var filter = Builders<DbProductResponseModel>.Filter.Eq("Id", product.Id);
-        await _collection.ReplaceOneAsync(filter, product, new ReplaceOptions { IsUpsert = true }) ;      
+        await _collection.ReplaceOneAsync(filter, product, new ReplaceOptions { IsUpsert = true });
     }
 }

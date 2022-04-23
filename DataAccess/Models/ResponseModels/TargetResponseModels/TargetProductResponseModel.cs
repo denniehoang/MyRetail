@@ -3,6 +3,7 @@
 public class TargetProductResponseModel
 {
     public Data data { get; set; }
+    public Error error { get; set; }
 }
 
 public class Data
@@ -51,3 +52,12 @@ public class Primary_Brand
     public string name { get; set; }
 }
 
+public class RootError
+{
+    public Error[] errors { get; set; }
+}
+
+public class Error
+{
+    public string message { get; set; }
+}

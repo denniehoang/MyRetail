@@ -1,45 +1,58 @@
+using System.Text.Json;
+
 namespace MyRetailApi.Controllers;
 
 [ApiController]
 public class MyRetailController : ControllerBase
 {
-    public readonly ITargetDataAccess _targetDataAccess;
-    public readonly IProductDB _productDB;
+    private readonly ILogger<MyRetailController> _logger;
+    private IProductManager _deviceManager;
 
-    public MyRetailController(ITargetDataAccess targetDataAccess, IProductDB productDB)
+    //TODO: Could add cancellations to each request, if aggregate product can be large.
+    public MyRetailController(ILogger<MyRetailController> logger, IProductManager deviceManager)
     {
-        _targetDataAccess = targetDataAccess;
-        _productDB = productDB;
+        _logger = logger;
+        _deviceManager = deviceManager;
     }
 
     [HttpGet("products/{id}")]
-    public async Task<Product> GetProductById(int id = 13860428)
+    public async Task<IActionResult> GetProductById(int id = 13860428)
     {
-        var targetObj = await _targetDataAccess.GetProductById(id);
-        var dbObj = await _productDB.GetProductPriceById(id);
-
-        var price = Convert.ToDecimal(dbObj.Price);
-        var currencyCode = dbObj.Currency;
-
-        var product = new Product()
+        try
         {
-            Id = targetObj.data.product.tcin,
-            Name = targetObj.data.product.item.product_description.title,
-            CurrentPrice = new Price(price, currencyCode.ToString())
-        };
+            var targetObj = await _deviceManager.GetTargetProductById(id);
+            var dbObj = await _deviceManager.GetDBProductById(id);
 
-        return product;
+            return Ok(_deviceManager.GetAggregateProduct(targetObj, dbObj));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("{0}\n{1}", ex.Message, ex.StackTrace);
+            return NotFound(ex.Message);
+        }
     }
 
     [HttpPost("products")]
     public async Task InsertProductPrice(int id, decimal price, CurrencyCode currency)
     {
-        await _productDB.Insert(id.ToString(), price, currency);
+        await _deviceManager.InsertProductPrice(id, price, currency);
     }
 
     [HttpPut("products/{id}")]
-    public async Task UpdateProductPrice(DbProductResponseModel product, int id = 13860428)
+    public async Task<IActionResult> UpdateProductPrice(DbProductResponseModel product, int id = 13860428)
     {
-        await _productDB.UpdateProduct(product);
+        try
+        {
+            if (!product.Id.Equals(id.ToString()))
+                throw new Exception(String.Format("{0} Id does not match {1}", JsonSerializer.Serialize(product), id));
+            await _deviceManager.UpdateProductPrice(product);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("{0}\n{1}", ex.Message, ex.StackTrace);
+            return BadRequest(ex.Message);
+        }
     }
+
 }

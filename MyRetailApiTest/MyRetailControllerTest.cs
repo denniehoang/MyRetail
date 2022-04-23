@@ -6,7 +6,7 @@ using DataAccess.Models.ResponseModels.DbResponseModels;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using MyRetailApi.Controllers;
+using MyRetailApi.Managers;
 
 namespace MyRetailApiTest;
 
@@ -40,19 +40,22 @@ public class MyRetailControllerTest
 
         var dbResponse = new DbProductResponseModel()
         {
+            Id = "13860428",
             Price = 13.49m,
             Currency = CurrencyCode.USD,
         };
 
-        _mockProductDb.Setup(x => x.GetProductPriceById(It.IsAny<int>())).Returns(Task.FromResult(dbResponse));
-        _mockTargetAccess.Setup(x => x.GetProductById(It.IsAny<int>())).Returns(Task.FromResult(targetResponse));
+        _mockProductDb.Setup(x => x.GetProductPriceById(13860428)).Returns(Task.FromResult(dbResponse));
+        _mockTargetAccess.Setup(x => x.GetProductById(13860428)).Returns(Task.FromResult(targetResponse));
     }
 
     [TestMethod]
     public void TestGetProductById()
     {
-        var controller = new MyRetailController(_mockTargetAccess.Object, _mockProductDb.Object);
-        var actual = controller.GetProductById(It.IsAny<int>()).Result;
+        var manager = new ProductManager(_mockTargetAccess.Object, _mockProductDb.Object);
+        var targetObj = manager.GetTargetProductById(13860428).Result;
+        var dbObj = manager.GetDBProductById(13860428).Result;
+        var actual = manager.GetAggregateProduct(targetObj, dbObj);
         var expected = new Product
         {
             Id = "13860428",
@@ -61,5 +64,29 @@ public class MyRetailControllerTest
         };
 
         actual.Should().BeEquivalentTo(expected);
+    }
+
+    [TestMethod]
+    public async Task TestUpdateProductPrice()
+    {
+        var manager = new ProductManager(_mockTargetAccess.Object, _mockProductDb.Object);
+        var dbObj = manager.GetDBProductById(13860428).Result;
+
+        Assert.AreEqual(13.49m, dbObj.Price);
+
+        var updatedProduct = new DbProductResponseModel()
+        {
+            Id = "13860428",
+            Price = 15m,
+            Currency = CurrencyCode.USD
+        };
+
+        _mockProductDb.Setup(x => x.UpdateProduct(dbObj)).Returns(Task.Run(() => _mockProductDb.Setup(x => x.GetProductPriceById(13860428)).Returns(Task.FromResult(updatedProduct))));
+
+        await manager.UpdateProductPrice(dbObj);
+
+        dbObj = manager.GetDBProductById(13860428).Result;
+
+        Assert.AreEqual(15m, dbObj.Price);
     }
 }
