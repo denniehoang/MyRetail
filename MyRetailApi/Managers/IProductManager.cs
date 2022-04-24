@@ -5,7 +5,7 @@
         Task<TargetProductResponseModel> GetTargetProductById(int id);
         Task<DbProductResponseModel> GetDBProductById(int id);
         Product GetAggregateProduct(TargetProductResponseModel targetModel, DbProductResponseModel dbModel);
-        Task InsertProductPrice(int id, decimal price, CurrencyCode currency);
+        //Task InsertProductPrice(int id, decimal price, CurrencyCode currency);
         Task UpdateProductPrice(DbProductResponseModel product);
     }
 
@@ -46,10 +46,10 @@
             return product;
         }
 
-        public async Task InsertProductPrice(int id, decimal price, CurrencyCode currency)
-        {
-            await _productDB.Insert(id.ToString(), price, currency);
-        }
+        //public async Task InsertProductPrice(int id, decimal price, CurrencyCode currency)
+        //{
+        //    await _productDB.Insert(id.ToString(), price, currency);
+        //}
 
         public async Task UpdateProductPrice(DbProductResponseModel product)
         {

@@ -2,22 +2,16 @@
 
 public class TargetDataAccess : ITargetDataAccess
 {
-    private IConfiguration _config;
     private HttpClient _client;
-    private string _uri;
-    private string _key;
 
-    public TargetDataAccess(IConfiguration config)
+    public TargetDataAccess(IHttpClientFactory client)
     {
-        _config = config;
-        _client = new HttpClient();
-        _uri = config["target:uri"];
-        _key = config["target:key"];
+        _client = client.CreateClient("Target");
     }
 
     public async Task<TargetProductResponseModel> GetProductById(int id)
     {
-        var productRequest = new TargetProductRequestModel(_uri, _key, id);
+        var productRequest = new TargetProductRequestModel(_client, id);      
         var response = await _client.GetAsync(productRequest.Request.ToString());
         var result = response.Content.ReadAsStringAsync().Result;
         var product = JsonSerializer.Deserialize<TargetProductResponseModel>(result);

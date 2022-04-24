@@ -21,10 +21,10 @@ public class ProductDbAccess : IProductDB
         return product;
     }
 
-    public async Task Insert(string id, decimal price, CurrencyCode currency)
-    {
-        await _collection.InsertOneAsync(new DbProductResponseModel { Id = id, Price = price, Currency = currency });
-    }
+    //public async Task Insert(string id, decimal price, CurrencyCode currency)
+    //{
+    //    await _collection.InsertOneAsync(new DbProductResponseModel { Id = id, Price = price, Currency = currency });
+    //}
 
     public async Task UpdateProduct(DbProductResponseModel product)
     {

@@ -14,6 +14,8 @@ builder.Services.AddControllers().AddJsonOptions(x =>
     x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 
+builder.Services.AddHttpClient("Target", x => x.BaseAddress = new Uri($"{builder.Configuration["target:uri"]}?key={builder.Configuration["target:key"]}"));
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

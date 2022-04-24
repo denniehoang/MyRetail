@@ -27,16 +27,16 @@ public class MyRetailController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError("{0}\n{1}", ex.Message, ex.StackTrace);
+            _logger.LogErrorMessageAndStack(ex);
             return NotFound(ex.Message);
         }
     }
 
-    [HttpPost("products")]
-    public async Task InsertProductPrice(int id, decimal price, CurrencyCode currency)
-    {
-        await _deviceManager.InsertProductPrice(id, price, currency);
-    }
+    //[HttpPost("products")]
+    //public async Task InsertProductPrice(int id, decimal price, CurrencyCode currency)
+    //{
+    //    await _deviceManager.InsertProductPrice(id, price, currency);
+    //}
 
     [HttpPut("products/{id}")]
     public async Task<IActionResult> UpdateProductPrice(DbProductResponseModel product, int id = 13860428)
@@ -50,9 +50,8 @@ public class MyRetailController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError("{0}\n{1}", ex.Message, ex.StackTrace);
+            _logger.LogErrorMessageAndStack(ex);
             return BadRequest(ex.Message);
         }
     }
-
 }
